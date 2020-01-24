@@ -1,0 +1,4 @@
+! l-Alt remapped to Super
+remove mod1 = Alt_L
+keycode 64 = Super_R
+add mod4 = Super_R

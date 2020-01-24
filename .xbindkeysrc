@@ -1,0 +1,23 @@
+
+##### elecom huge mouse bindings #####################
+#zoom in / out
+"xte 'keydown Control_R' 'key minus' 'keyup Control_R'" 
+	b:11+release
+"xte 'keydown Control_R' 'key plus' 'keyup Control_R'" 
+	b:10+release 
+
+#tab switching
+"xte 'keydown Control_R' 'key Tab' 'keyup Control_R'" 
+	b:7+release
+"xte 'keydown Control_R' 'keydown Shift_R' 'key Tab' 'keyup Shift_R' 'keyup Control_R'" 
+	b:6+release 
+
+# close chrome tab
+"xte 'keydown Control_R' 'key w' 'keyup Control_R'" 
+	b:12+release
+#####################################################
+
+
+# enlarge i3 hitbox
+"xte 'keydown Super_L' 'keyup Super_L'"
+	m:0x8 + c:64

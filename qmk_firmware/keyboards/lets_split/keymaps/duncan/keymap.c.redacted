@@ -1,0 +1,208 @@
+#include QMK_KEYBOARD_H
+
+// Each layer gets a name for readability, which is then used in the keymap matrix below.
+// The underscores don't mean anything - you can have a layer called STUFF or any other name.
+// Layer names don't all need to be of the same length, obviously, and you can also skip them
+// entirely and just use numbers.
+#define _BASE 0
+#define _LOWER 1
+#define _RAISE 2
+#define _NAV 3
+#define _ADJUST 16
+//#define _CSGO 10
+
+enum custom_keycodes {
+  BASE= SAFE_RANGE,
+};
+
+#define LOWER  MO(_LOWER)
+#define RAISE  MO(_RAISE)
+#define ADJUST MO(_ADJUST)
+#define UNDO LCTL(KC_Z)
+
+////// Tap Dance
+typedef struct {
+  bool is_press_action;
+  int state;
+} tap;
+enum {
+  SINGLE_TAP = 1,
+  SINGLE_HOLD = 2,
+  DOUBLE_TAP = 3,
+  DOUBLE_HOLD = 4,
+  DOUBLE_SINGLE_TAP = 5, //send two single taps
+  TRIPLE_TAP = 6,
+  TRIPLE_HOLD = 7
+};
+//Tap dance enums
+enum {
+  Z=0,
+  // LS,
+  // RS,
+  MLS,
+  MRS,
+  EML,
+  PASS,
+  TD_RESET,
+};
+int cur_dance (qk_tap_dance_state_t *state);
+void z_finished (qk_tap_dance_state_t *state, void *user_data);
+void z_reset (qk_tap_dance_state_t *state, void *user_data);
+// void ls_finished (qk_tap_dance_state_t *state, void *user_data);
+// void ls_reset (qk_tap_dance_state_t *state, void *user_data);
+// void rs_finished (qk_tap_dance_state_t *state, void *user_data);
+// void rs_reset (qk_tap_dance_state_t *state, void *user_data);
+void eml_finished (qk_tap_dance_state_t *state, void *user_data);
+void eml_reset (qk_tap_dance_state_t *state, void *user_data);
+void pass_finished (qk_tap_dance_state_t *state, void *user_data);
+void pass_reset (qk_tap_dance_state_t *state, void *user_data);
+////////////////
+
+
+const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
+
+[_BASE] = LAYOUT_ortho_4x12( \
+   KC_TAB,     KC_Q,    KC_W,    KC_E,    KC_R,             KC_T,    	      KC_Y,    KC_U,    KC_I,    KC_O, 	 	     KC_P, _______, \
+   KC_BSPC,	   KC_A,    KC_S,    KC_D,    KC_F,             KC_G,    		  KC_H,    KC_J,    KC_K,    KC_L, LT(_NAV,KC_SCLN), KC_QUOT, \
+   KC_LSPO,   CTL_T(KC_Z),    KC_X,    KC_C,    KC_V,             KC_B,       	  KC_N,    KC_M, KC_COMM,  KC_DOT,	      CTL_T(KC_SLSH), KC_RSPC, \
+   KC_LCTL, _______, _______, KC_LALT, KC_LGUI, LT(LOWER,KC_ENT), LT(RAISE,KC_SPC), _______, _______, _______, 	      KC_RCTL, KC_RCTL \
+),
+
+//phonetic symbols (colemak)
+[_LOWER] = LAYOUT_ortho_4x12( \
+   KC_ESC, _______, _______, _______, TD(PASS), _______, 	_______, _______, KC_UNDS, _______, S(KC_SCLN),  _______, \
+   KC_DEL, _______, _______, _______,  _______,  KC_DLR, 	KC_HASH, _______, TD(EML), _______,    KC_PIPE,  _______, \
+  TD(MLS),    UNDO, _______, KC_CIRC,  _______, KC_EXLM,    _______, _______, _______, _______,    KC_BSLS,   TD(MRS), \
+  TD(TD_RESET), _______, _______, _______,  _______, _______,  	 KC_SPC, _______, _______, _______,    _______,  _______ \
+),
+
+[_RAISE] = LAYOUT_ortho_4x12( \
+  KC_TILD, _______, _______, _______, _______, _______, 	  KC_MINS,   KC_7, KC_8,   KC_9, _______, _______, \
+  _______, KC_AMPR, _______, _______, _______, _______, 	  KC_ASTR,   KC_4, KC_5,   KC_6, _______, _______, \
+  TD(MLS), _______, _______, _______, _______, _______,  	  KC_PLUS,   KC_1, KC_2,   KC_3, _______,  TD(MRS), \
+  _______, _______, _______, _______, _______,  KC_ENT,  	  _______, KC_EQL, KC_0, KC_DOT, _______, TD(TD_RESET) \
+),
+
+[_NAV] =  LAYOUT_ortho_4x12( \
+  _______, _______, _______, _______, _______, _______, 	_______, KC_HOME,   KC_UP,   KC_END, _______, _______, \
+  _______, _______, _______, _______, _______, _______,		_______, KC_LEFT, KC_DOWN, KC_RIGHT, _______, _______, \
+  _______, _______, _______, _______, _______, _______, 	_______, _______, _______,  _______, _______, _______, \
+  _______, _______, _______, _______, _______, _______, 	_______, _______, _______,  _______, _______, _______ \
+),
+
+//'r'eset
+//'l'ed
+//rgb 'm'ode
+[_ADJUST] =  LAYOUT_ortho_4x12( \
+  _______, _______, _______, _______, _______, _______, 	_______, RGB_TOG, _______, _______, _______, _______, \
+  _______, _______,   RESET, _______, _______, _______,		_______, _______, _______, _______, _______, _______, \
+  _______, _______, _______, _______, _______, _______, 	_______, RGB_MOD, _______, _______, _______, _______, \
+  _______, _______, _______, _______, _______, _______, 	_______, _______, _______, _______, _______, _______ \
+)
+};
+
+layer_state_t layer_state_set_user(layer_state_t state) {
+  return update_tri_layer_state(state, _LOWER, _RAISE, _ADJUST);
+}
+
+int cur_dance (qk_tap_dance_state_t *state) { 
+  if (state->count == 1) {
+    if (state->interrupted || !state->pressed)  return SINGLE_TAP;
+    else return SINGLE_HOLD;
+  }
+  else if (state->count == 2) {
+    if (state->interrupted) return DOUBLE_SINGLE_TAP;
+    else if (state->pressed) return DOUBLE_HOLD;
+    else return DOUBLE_TAP;
+  }
+  if (state->count == 3) {
+    if (state->interrupted || !state->pressed)  return TRIPLE_TAP;
+    else return TRIPLE_HOLD;
+  }
+  else return 8; //magic number. At some point this method will expand to work for more presses
+}
+
+static tap ztap_state = {
+  .is_press_action = true,
+  .state = 0
+};
+static tap emltap_state = {
+  .is_press_action = true,
+  .state = 0
+};
+static tap passtap_state = {
+  .is_press_action = true,
+  .state = 0
+};
+
+
+
+void z_finished (qk_tap_dance_state_t *state, void *user_data) {
+  ztap_state.state = cur_dance(state);
+  switch (ztap_state.state) {
+    case SINGLE_TAP: register_code(KC_Z); break;
+    case SINGLE_HOLD: register_code(KC_LCTRL); break;
+    case DOUBLE_TAP: register_code(KC_LCTRL); register_code(KC_Z); break; // undo
+    //case DOUBLE_HOLD: register_code(KC_LCTRL); break;
+    //case DOUBLE_SINGLE_TAP: register_code(KC_Z); unregister_code(KC_Z); register_code(KC_Z);
+  }
+}
+void z_reset (qk_tap_dance_state_t *state, void *user_data) {
+  switch (ztap_state.state) {
+    case SINGLE_TAP: unregister_code(KC_Z); break;
+    case SINGLE_HOLD: unregister_code(KC_LCTRL); break;
+    case DOUBLE_TAP: unregister_code(KC_Z); unregister_code(KC_LCTRL); break;
+    //case DOUBLE_HOLD: unregister_code(KC_LCTRL);
+    //case DOUBLE_SINGLE_TAP: unregister_code(KC_Z);
+  }
+  ztap_state.state = 0;
+}
+
+
+void eml_finished (qk_tap_dance_state_t *state, void *user_data){
+  emltap_state.state = cur_dance(state);
+  switch (emltap_state.state) {
+    case SINGLE_TAP: register_code(KC_LSFT); register_code(KC_2); break;
+    case DOUBLE_TAP: SEND_STRING("Gijcajlch;ud;j@tmalu.c;m"); break;
+    case TRIPLE_TAP: SEND_STRING("Gvj5207@rdi.kgi"); break;
+    }
+}
+
+void eml_reset (qk_tap_dance_state_t *state, void *user_data){
+  if (emltap_state.state==SINGLE_TAP) { unregister_code(KC_2);unregister_code(KC_LSFT);}
+  emltap_state.state = 0;
+}
+
+
+
+void pass_finished (qk_tap_dance_state_t *state, void *user_data){
+  passtap_state.state = cur_dance(state);
+  switch (passtap_state.state) {
+    case SINGLE_TAP: register_code(KC_LSFT); register_code(KC_5); break;
+    case DOUBLE_TAP: SEND_STRING(""SS_TAP(X_ENT)); break;
+    case TRIPLE_TAP: SEND_STRING(""SS_TAP(X_ENT)); break;
+    }
+}
+void pass_reset (qk_tap_dance_state_t *state, void *user_data){
+  if (passtap_state.state==SINGLE_TAP) {
+  	unregister_code(KC_5); register_code(KC_LSFT);
+  }
+  passtap_state.state = 0;
+}
+
+void safe_reset(qk_tap_dance_state_t *state, void *user_data) {
+  if (state->count >= 2) {
+    // Reset the keyboard if you tap the key more than three times
+    reset_keyboard();
+    reset_tap_dance(state);
+  }
+}
+
+qk_tap_dance_action_t tap_dance_actions[] = {
+  [Z]   = ACTION_TAP_DANCE_FN_ADVANCED(NULL,z_finished, z_reset),
+  [MLS]  = ACTION_TAP_DANCE_DOUBLE(KC_LBRC, KC_LCBR),
+  [MRS]  = ACTION_TAP_DANCE_DOUBLE(KC_RBRC, KC_RCBR),
+  [TD_RESET]  = ACTION_TAP_DANCE_FN(safe_reset),
+  [PASS]   = ACTION_TAP_DANCE_FN_ADVANCED(NULL,pass_finished, pass_reset),
+  [EML]   = ACTION_TAP_DANCE_FN_ADVANCED(NULL,eml_finished, eml_reset),
+};

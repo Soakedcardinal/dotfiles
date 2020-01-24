@@ -1,0 +1,38 @@
+set adjust-open best-fit
+
+set statusbar-h-padding 0
+set statusbar-v-padding 0
+set page-padding 1
+map r recolor
+map p print
+map <C-=> zoom in
+map <C--> zoom out
+
+set incremental-search true
+set abort-clear-search true
+
+set selection-clipboard clipboard
+
+
+map c feedkeys ":exec subl /home/duncan/.config/zathura/zathurarc"<Return>
+
+
+set window-title-home-tilde true
+set adjust-open best-fit
+
+#tabbed -c zathura -e
+
+unmap f
+map f feedkeys "/"
+map <C-f> feedkeys "/"
+
+
+#map Tab search forward
+#map <S-Tab> search backward
+
+unmap s
+map s search forward
+map t search backward
+
+
+map w adjust_window width
