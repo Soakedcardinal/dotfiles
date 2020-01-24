@@ -1,0 +1,1 @@
+/home/duncan/qmk_firmware/keyboards/lets_split/keymaps/duncan/keymap.c
