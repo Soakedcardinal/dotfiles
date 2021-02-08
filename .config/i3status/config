@@ -1,0 +1,61 @@
+general {
+        output_format = "i3bar"
+        colors = true
+        markup = pango
+        interval = 5
+        color_good = "#00ff00"
+        color_bad = "#ff0000"
+        color_degraded = "#DC322F"
+}
+
+order += "cpu_temperature 0"
+order += "cpu_usage"
+order += "disk /"
+order += "wireless wlp2s0"
+order += "volume master"
+order += "battery 0"
+order += "tztime local"
+
+cpu_temperature 0 {
+        format = "<span color='#ff5555'>  </span> %degrees °C "
+        path = "/sys/class/thermal/thermal_zone0/temp"
+}
+
+
+cpu_usage {
+	format = "<span color='#50fa7b'>  </span> %usage "
+}
+
+disk "/" {
+        format = "<span color='#f1fa8c'>  </span> %free Free "
+}
+
+wireless wlp2s0 {
+        format_up = "<span color='#bd93f9'>  </span> %essid "
+        format_down = "<span color='#bd93f9'>  </span> Disconnected "
+}
+
+volume master {
+        format = "<span color='#ff79c6'>  </span> %volume "
+        format_muted = "<span color='#ff79c6'>  </span> Muted "
+        device = "default"
+        mixer = "Master"
+        mixer_idx = 0
+}
+battery 0 {
+        format = "%status %percentage %remaining %emptytime"
+        format_down = "No battery"
+        status_chr = "⚡"
+        status_bat = "🔋"
+        status_unk = "?"
+        status_full = "☻"
+        path = "/sys/class/power_supply/BAT%d/uevent"
+        low_threshold = 30
+        threshold_type = percentage
+        integer_battery_capacity = true
+}
+
+tztime local {
+		format = "<span color='#8be9fd'>  </span> %time "
+		format_time = "%a %-d %b %I:%M %p"
+}
